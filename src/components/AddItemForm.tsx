@@ -1,10 +1,10 @@
-import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
+import React, {ChangeEvent, KeyboardEvent, memo, useState} from 'react';
 
 type AddItemFormTypeProps={
     callBack:(title:string)=>void
 }
 
-export const AddItemForm = (props:AddItemFormTypeProps) => {
+export const AddItemForm = memo((props:AddItemFormTypeProps) => {
 
     let [title, setTitle] = useState("")
     let [error, setError] = useState<string | null>(null)
@@ -41,5 +41,5 @@ export const AddItemForm = (props:AddItemFormTypeProps) => {
             {error && <div className="error-message">{error}</div>}
         </div>
     );
-};
+});
 
