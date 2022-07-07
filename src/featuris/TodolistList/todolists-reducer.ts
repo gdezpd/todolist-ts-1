@@ -1,8 +1,8 @@
 import {v1} from 'uuid';
-import {todolistAPI, TodoType} from "../api/todolist-api";
+import {todolistAPI, TodoType} from "../../api/todolist-api";
 import {Dispatch} from "redux";
-import {AppRootStateType} from "../app/store";
-import {setAppReducerAC} from "../app/app-reducer";
+import {AppRootStateType} from "../../app/store";
+import {setAppReducerAC, setErrorAC} from "../../app/app-reducer";
 
 const initialState: Array<TodolistDomainType> = []
 
@@ -18,13 +18,7 @@ export const todolistsReducer = (state: Array<TodolistDomainType> = initialState
         case 'REMOVE-TODOLIST':
             return state.filter(tl => tl.id !== action.id)
         case 'ADD-TODOLIST': {
-            return [{
-                id: action.todolistId,
-                title: action.title,
-                filter: 'all',
-                addedDate: '',
-                order: 0
-            }, ...state]
+            return [{...action.todolist, filter:'all'}, ...state]
         }
         case 'CHANGE-TODOLIST-TITLE': {
             return state.map(tl => tl.id === action.id ? {...tl, title:action.title} : tl)
@@ -39,7 +33,7 @@ export const todolistsReducer = (state: Array<TodolistDomainType> = initialState
 
 // Actions
 export const removeTodolistAC = (todolistId: string) => ({type: 'REMOVE-TODOLIST', id: todolistId} as const)
-export const addTodolistAC = (title: string) => ({type: 'ADD-TODOLIST', title: title, todolistId: v1()} as const)
+export const addTodolistAC = (todolist: TodoType) => ({type: 'ADD-TODOLIST', todolist} as const)
 export const changeTodolistTitleAC = (id: string, title: string) => ({
     type: 'CHANGE-TODOLIST-TITLE',
     id: id,
@@ -71,15 +65,14 @@ export const deletedTodoTC = (todosId: string) => (dispatch: Dispatch) => {
 }
 export const createTodoTC = (titleTodo: string) => (dispatch: Dispatch) => {
     dispatch(setAppReducerAC('loading'))
-
     todolistAPI.createTodolist(titleTodo)
         .then((res) => {
-            dispatch(addTodolistAC(titleTodo))
-            dispatch(setAppReducerAC('succeeded'))
-        })
-    todolistAPI.getTodolist()
-        .then((res) => {
-            dispatch(setTodolistsAC(res.data))
+            if(res.data.resultCode === 0) {
+                dispatch(addTodolistAC(res.data.data.item))
+                dispatch(setAppReducerAC('succeeded'))
+            } else {
+                dispatch(setErrorAC(res.data.messages[0]))
+            }
         })
 }
 export const changeTodolistTitleTC = (id: string, title: string) => (dispatch: Dispatch) => {

@@ -15,6 +15,7 @@ import {AppRootStateType} from "./store";
 import {RequestStatusType} from "./app-reducer";
 import TodolistList from "../featuris/TodolistList/TodolistList";
 import {Login} from "../featuris/Login/Login";
+import {ErrorSnackbar} from "../Components/ErrorSnackbar/ErrorSnackbar";
 
 export type TasksStateType = {
     [key: string]: Array<TaskType>
@@ -27,7 +28,7 @@ function App() {
 
     return (
         <div className="App">
-
+            <ErrorSnackbar/>
             <AppBar position="static">
                 <Toolbar>
                     <IconButton edge="start" color="inherit" aria-label="menu">
